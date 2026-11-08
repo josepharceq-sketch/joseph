@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fase 0: Hackea Tu Carrera - UNI</title>
+  <!-- Fuentes e Iconos -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <!-- Librería para el Código QR dinámico -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Librería para descargar/convertir el carnet en imagen -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    :root {
+      --neon-cyan: #00f6ff;
+      --neon-pink: #ff007f;
+      --neon-purple: #9d4edd;
+      --bg-dark: #070913;
+      --text-white: #ffffff;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: #05060c;
+      color: #e0e6ed;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      background: #0b0d1b;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 0 25px rgba(0, 246, 255, 0.15);
+      border: 1px solid rgba(0, 246, 255, 0.3);
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--neon-cyan);
+      text-align: center;
+      margin-top: 0;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0, 246, 255, 0.5);
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: var(--neon-pink);
+      margin-bottom: 25px;
+      font-weight: 700;
+      font-size: 1.1em;
+      letter-spacing: 1px;
+    }
+
+    fieldset {
+      border: 1px solid rgba(255, 0, 127, 0.4);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+      background-color: rgba(13, 15, 34, 0.6);
+    }
+
+    legend {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      color: var(--neon-pink);
+      padding: 0 8px;
+      font-size: 0.9em;
+    }
+
+    .form-group { margin-bottom: 15px; }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #b8c7dc;
+      font-size: 1em;
+    }
+
+    input[type="text"], input[type="email"], select, input[type="file"] {
+      width: 100%;
+      padding: 11px;
+      box-sizing: border-box;
+      border: 1px solid #1e2648;
+      border-radius: 6px;
+      font-size: 1em;
+      background-color: #050714;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--neon-cyan);
+      outline: none;
+      box-shadow: 0 0 12px rgba(0, 246, 255, 0.4);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+      color: white;
+      padding: 15px;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05em;
+      font-weight: 900;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+    }
+
+    .btn-submit:hover { opacity: 0.9; }
+
+    /* ESTILO CARNET FUTURISTA ESCAPE ROOM */
+    #resultadoSection {
+      display: none;
+      width: 100%;
+      max-width: 430px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .carnet-wrapper {
+      position: relative;
+      width: 100%;
+      background: linear-gradient(160deg, #070914 0%, #0d122b 50%, #150824 100%);
+      border-radius: 16px;
+      padding: 25px 22px;
+      box-sizing: border-box;
+      color: var(--text-white);
+      box-shadow: 0 0 35px rgba(0, 246, 255, 0.3);
+      border: 2px solid var(--neon-cyan);
+      overflow: hidden;
+    }
+
+    .carnet-header .badge-top {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75em;
+      letter-spacing: 3px;
+      color: var(--neon-cyan);
+      background: rgba(0, 246, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 246, 255, 0.3);
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .carnet-header h2 {
+      font-family: 'Orbitron', sans-serif;
+      margin: 2px 0 0 0;
+      font-size: 1.45em;
+      color: #ffffff;
+      text-shadow: 0 0 10px var(--neon-pink);
+    }
+
+    .carnet-header p {
+      font-family: 'Orbitron', sans-serif;
+      margin: 3px 0 0 0;
+      font-size: 0.8em;
+      color: var(--neon-cyan);
+    }
+
+    .carnet-photo-container {
+      width: 140px;
+      height: 160px;
+      margin: 14px auto;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 15px rgba(0, 246, 255, 0.5);
+      background: #000;
+    }
+
+    .carnet-photo-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75em;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin: 8px 0;
+    }
+
+    .carnet-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25em;
+      color: #ffffff;
+      margin: 6px 0 2px 0;
+    }
+
+    .carnet-info {
+      font-size: 1em;
+      color: var(--neon-cyan);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .carnet-details-box {
+      background: rgba(5, 7, 20, 0.8);
+      border-radius: 8px;
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 0.9em;
+      margin-bottom: 15px;
+      border: 1px solid rgba(0, 246, 255, 0.25);
+    }
+
+    .carnet-details-box strong { color: var(--neon-pink); }
+
+    .carnet-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(0, 246, 255, 0.2);
+      padding-top: 12px;
+      margin-top: 10px;
+    }
+
+    .qr-box {
+      background: #fff;
+      padding: 4px;
+      border-radius: 6px;
+      width: 50px;
+      height: 50px;
+    }
+
+    .footer-brand {
+      text-align: right;
+      font-size: 0.75em;
+      color: #8fa0be;
+    }
+
+    .footer-brand span {
+      display: block;
+      color: var(--neon-cyan);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .email-notice {
+      background: rgba(0, 246, 255, 0.1);
+      color: var(--neon-cyan);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      margin-bottom: 15px;
+      border: 1px solid var(--neon-cyan);
+    }
+
+    .btn-download {
+      background: #050714;
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan);
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="formContainer">
+    <h1>HACKEA TU CARRERA</h1>
+    <p class="subtitle">EL PROFESIONAL ESCAPE ROOM • FASE 0</p>
+
+    <form id="perfilForm">
+      <fieldset>
+        <legend>I. DATOS DE JUGADOR</legend>
+        <div class="form-group">
+          <label>Nombres y Apellidos *</label>
+          <input type="text" id="nombres" required placeholder="Ej. Ricardo Rivera Cevallos">
+        </div>
+        <div class="form-group">
+          <label>Código UNI / DNI *</label>
+          <input type="text" id="codigo" required placeholder="Ej. 20231234A">
+        </div>
+        <div class="form-group">
+          <label>Correo Electrónico *</label>
+          <input type="email" id="correo" required placeholder="ejemplo@uni.edu.pe">
+        </div>
+        <div class="form-group">
+          <label>Fotografía de Perfil (JPG/PNG) *</label>
+          <input type="file" id="foto" accept="image/*" required>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>II. INFORMACIÓN ACADÉMICA (UNI)</legend>
+        <div class="form-group">
+          <label>¿A qué facultad perteneces? *</label>
+          <select id="facultad" required onchange="actualizarCarreras()">
+            <option value="">-- Selecciona una Facultad --</option>
+            <option value="FAUA">[FAUA] Facultad de Arquitectura, Urbanismo y Arte</option>
+            <option value="FC">[FC] Facultad de Ciencias</option>
+            <option value="FIA">[FIA] Facultad de Ingeniería Ambiental</option>
+            <option value="FIC">[FIC] Facultad de Ingeniería Civil</option>
+            <option value="FIEECS">[FIEECS] Facultad de Ingeniería Económica, Estadística y CC.SS.</option>
+            <option value="FIEE">[FIEE] Facultad de Ingeniería Eléctrica y Electrónica</option>
+            <option value="FIGMM">[FIGMM] Facultad de Ingeniería Geológica, Minera y Metalúrgica</option>
+            <option value="FIIS">[FIIS] Facultad de Ingeniería Industrial y de Sistemas</option>
+            <option value="FIM">[FIM] Facultad de Ingeniería Mecánica</option>
+            <option value="FIP">[FIP] Facultad de Ingeniería de Petróleo, Gas Natural y Petroquímica</option>
+            <option value="FIQT">[FIQT] Facultad de Ingeniería Química y Textil</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>¿Cuál es tu carrera profesional? *</label>
+          <select id="carrera" required disabled>
+            <option value="">-- Primero selecciona una Facultad --</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>III. AUTOEVALUACIÓN DE HABILIDADES</legend>
+        <div class="form-group">
+          <label>¿Cuál es tu área de interés principal? *</label>
+          <select id="areaInteres" required>
+            <option value="">-- Selecciona una opción --</option>
+            <option value="Tecnología">Tecnología</option>
+            <option value="Gestión">Gestión</option>
+            <option value="Finanzas">Finanzas</option>
+            <option value="Innovación">Innovación</option>
+            <option value="Operaciones / Logística">Operaciones / Logística</option>
+            <option value="Investigación y Desarrollo">Investigación y Desarrollo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>¿Qué habilidad buscas fortalecer? *</label>
+          <select id="habilidad" required>
+            <option value="">-- Selecciona una opción --</option>
+            <option value="Comunicación">Comunicación</option>
+            <option value="Liderazgo">Liderazgo</option>
+            <option value="Networking">Networking</option>
+            <option value="Trabajo en equipo">Trabajo en equipo</option>
+            <option value="Resolución de problemas">Resolución de problemas</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>¿Cuál es tu objetivo principal? *</label>
+          <select id="objetivo" required>
+            <option value="">-- Selecciona una opción --</option>
+            <option value="Explorar opciones">Explorar opciones</option>
+            <option value="Networking">Networking (Red de contactos)</option>
+            <option value="Buscar mentoría">Buscar mentoría</option>
+            <option value="Prepararse para prácticas">Prepararse para prácticas</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn-submit" id="btnGuardar">🔑 REGISTRAR MI PERFIL Y GENERAR PASE</button>
+    </form>
+  </div>
+
+  <div id="resultadoSection">
+    <div class="email-notice">
+      ✉️ <strong>¡ACCESO CONCEDIDO!</strong><br>
+      Tu perfil se guardó en la base de datos y se envió una copia a tu correo.
+    </div>
+
+    <div class="carnet-wrapper" id="carnetRender">
+      <div class="carnet-header">
+        <div class="badge-top">FASE 0 • PLAYER PASS</div>
+        <h2>HACKEA TU CARRERA</h2>
+        <p>EL PROFESIONAL ESCAPE ROOM</p>
+      </div>
+
+      <div class="carnet-photo-container">
+        <img id="carnetImgPreview" src="" alt="Foto Jugador">
+      </div>
+
+      <div class="badge-pill" id="badgePillar">SKILL: LIDERAZGO</div>
+
+      <div class="carnet-body">
+        <div class="carnet-name" id="cardName">Ricardo Rivera</div>
+        <div class="carnet-info" id="cardAcademic">Ingeniería Civil - UNI</div>
+
+        <div class="carnet-details-box">
+          <div><strong>ID Jugador:</strong> <span id="cardCode" style="color: #fff;">-</span></div>
+          <div><strong>Área Clave:</strong> <span id="cardArea" style="color: #fff;">-</span></div>
+          <div><strong>Habilidad Meta:</strong> <span id="cardHabilidad" style="color: #fff;">-</span></div>
+          <div><strong>Objetivo Reto:</strong> <span id="cardObjetivo" style="color: #fff;">-</span></div>
+        </div>
+      </div>
+
+      <div class="carnet-footer">
+        <div class="qr-box" id="qrcode"></div>
+        <div class="footer-brand">
+          UNIVERSIDAD NACIONAL DE INGENIERÍA
+          <span>ESCAPE ROOM PERMANENT ID</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-download" onclick="descargarCarnet()">📥 DESCARGAR MI PASE (PNG)</button>
+  </div>
+
+  <script>
+    // URL DE TU BASE DE DATOS EN GOOGLE APPS SCRIPT
+    const WEB_APP_URL = "PEGA_AQUI_TU_URL_DE_GOOGLE_APPS_SCRIPT";
+
+    const carrerasPorFacultad = {
+      FAUA: ["Arquitectura"],
+      FC: ["Ciencia de la Computación", "Física", "Ingeniería Física", "Matemática", "Química"],
+      FIA: ["Ingeniería Ambiental", "Ingeniería de Higiene y Seguridad Industrial", "Ingeniería Sanitaria"],
+      FIC: ["Ingeniería Civil"],
+      FIEECS: ["Ingeniería Económica", "Ingeniería Estadística"],
+      FIEE: ["Ingeniería de Ciberseguridad", "Ingeniería de Telecomunicaciones", "Ingeniería Eléctrica", "Ingeniería Electrónica"],
+      FIGMM: ["Ingeniería Geológica", "Ingeniería Metalúrgica", "Ingeniería Minera"],
+      FIIS: ["Ingeniería de Software", "Ingeniería de Sistemas", "Ingeniería Industrial"],
+      FIM: ["Ingeniería Mecánica", "Ingeniería Mecánica-Eléctrica", "Ingeniería Mecatrónica", "Ingeniería Naval"],
+      FIP: ["Ingeniería de Petróleo y Gas Natural", "Ingeniería Petroquímica"],
+      FIQT: ["Ingeniería Química", "Ingeniería Textil"]
+    };
+
+    function actualizarCarreras() {
+      const facultadSelect = document.getElementById("facultad");
+      const carreraSelect = document.getElementById("carrera");
+      const selec = facultadSelect.value;
+
+      carreraSelect.innerHTML = '<option value="">-- Selecciona tu Carrera --</option>';
+
+      if (selec && carrerasPorFacultad[selec]) {
+        carreraSelect.disabled = false;
+        carrerasPorFacultad[selec].forEach(carrera => {
+          const opt = document.createElement("option");
+          opt.value = carrera;
+          opt.textContent = carrera;
+          carreraSelect.appendChild(opt);
+        });
+      } else {
+        carreraSelect.disabled = true;
+      }
+    }
+
+    document.getElementById("perfilForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById("btnGuardar");
+      btn.textContent = "⏳ GUARDANDO Y ENVIANDO CORREO...";
+      btn.disabled = true;
+
+      const nombres = document.getElementById("nombres").value;
+      const codigo = document.getElementById("codigo").value;
+      const correo = document.getElementById("correo").value;
+      const facultad = document.getElementById("facultad").value;
+      const carrera = document.getElementById("carrera").value;
+      const area = document.getElementById("areaInteres").value;
+      const habilidad = document.getElementById("habilidad").value;
+      const objetivo = document.getElementById("objetivo").value;
+      const fotoFile = document.getElementById("foto").files[0];
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const fotoBase64 = evt.target.result;
+
+        // Renderizar vista del Carnet
+        document.getElementById("carnetImgPreview").src = fotoBase64;
+        document.getElementById("cardName").textContent = nombres;
+        document.getElementById("cardAcademic").textContent = carrera + " (" + facultad + ")";
+        document.getElementById("cardCode").textContent = codigo;
+        document.getElementById("cardArea").textContent = area;
+        document.getElementById("cardHabilidad").textContent = habilidad;
+        document.getElementById("cardObjetivo").textContent = objetivo;
+        document.getElementById("badgePillar").textContent = "SKILL: " + habilidad.toUpperCase();
+
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+          text: `HACK-UNI-FASE0-${codigo}-${correo}`,
+          width: 44,
+          height: 44
+        });
+
+        // Convertir carnet completo a PNG y enviar por internet a Google Sheets + Gmail
+        setTimeout(() => {
+          const carnetNode = document.getElementById("carnetRender");
+          html2canvas(carnetNode, { scale: 2 }).then(canvas => {
+            const carnetImageBase64 = canvas.toDataURL("image/png");
+
+            const payload = {
+              nombres: nombres,
+              codigo: codigo,
+              correo: correo,
+              facultad: facultad,
+              carrera: carrera,
+              areaInteres: area,
+              habilidad: habilidad,
+              objetivo: objetivo,
+              carnetImagen: carnetImageBase64
+            };
+
+            fetch(WEB_APP_URL, {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            }).then(() => {
+              document.getElementById("formContainer").style.display = "none";
+              document.getElementById("resultadoSection").style.display = "block";
+            }).catch(err => {
+              alert("Ocurrió un error al enviar los datos.");
+              btn.disabled = false;
+              btn.textContent = "🔑 REGISTRAR MI PERFIL Y GENERAR PASE";
+            });
+          });
+        }, 600);
+      };
+
+      if (fotoFile) {
+        reader.readAsDataURL(fotoFile);
+      }
+    });
+
+    function descargarCarnet() {
+      const carnetNode = document.getElementById("carnetRender");
+      html2canvas(carnetNode, { scale: 2 }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "Pase_EscapeRoom_UNI.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+  </script>
+</body>
+</html>
